@@ -1,0 +1,49 @@
+### Consumer API (MIB Registry) - 測試請求
+### 基礎 URL
+@baseUrl = http://localhost:5200
+@rbacUrl = http://localhost:5100
+
+### ────────────────────────────────────────
+### 1. 先從 RBAC 取得 Token (Admin)
+### ────────────────────────────────────────
+# @name login
+POST {{rbacUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "employeeId": "EMP-0001",
+  "password": "P@ssw0rd"
+}
+
+### ────────────────────────────────────────
+### 2. 查詢可存取的模組 (Admin → 應看到 2 widgets + 1 menu)
+### ────────────────────────────────────────
+@adminToken = {{login.response.body.accessToken}}
+
+GET {{baseUrl}}/api/registry/modules
+Authorization: Bearer {{adminToken}}
+
+### ────────────────────────────────────────
+### 3. 先從 RBAC 取得 Token (Zander / bento_user)
+### ────────────────────────────────────────
+# @name loginZander
+POST {{rbacUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "employeeId": "EMP-0002",
+  "password": "P@ssw0rd"
+}
+
+### ────────────────────────────────────────
+### 4. 查詢可存取的模組 (bento_user → 應只看到 1 menu)
+### ────────────────────────────────────────
+@zanderToken = {{loginZander.response.body.accessToken}}
+
+GET {{baseUrl}}/api/registry/modules
+Authorization: Bearer {{zanderToken}}
+
+### ────────────────────────────────────────
+### 5. 未帶 Token (應回 401)
+### ────────────────────────────────────────
+GET {{baseUrl}}/api/registry/modules
