@@ -14,9 +14,11 @@ builder.Services.AddSingleton<DbConnectionFactory>();
 
 // ── Repositories ──
 builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
+builder.Services.AddScoped<IPreferenceRepository, PreferenceRepository>();
 
 // ── Services ──
 builder.Services.AddScoped<IRegistryService, RegistryService>();
+builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 
 // ── JWT Bearer Authentication ──
 // 啟動時從 rbac-api 取得 RSA 公鑰 (JWK)，用於離線驗證 JWT
@@ -69,7 +71,11 @@ builder.Services.AddCors(options =>
 });
 
 // ── Controllers ──
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
+    });
 
 var app = builder.Build();
 

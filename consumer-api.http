@@ -11,14 +11,15 @@ POST {{rbacUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "employeeId": "EMP-0001",
+  "employee_id": "EMP-0001",
   "password": "P@ssw0rd"
 }
 
 ### ────────────────────────────────────────
 ### 2. 查詢可存取的模組 (Admin → 應看到 2 widgets + 1 menu)
+### rbac-api 使用 SnakeCaseLower，回應欄位為 access_token
 ### ────────────────────────────────────────
-@adminToken = {{login.response.body.accessToken}}
+@adminToken = {{login.response.body.access_token}}
 
 GET {{baseUrl}}/api/registry/modules
 Authorization: Bearer {{adminToken}}
@@ -31,14 +32,14 @@ POST {{rbacUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "employeeId": "EMP-0002",
+  "employee_id": "EMP-0002",
   "password": "P@ssw0rd"
 }
 
 ### ────────────────────────────────────────
 ### 4. 查詢可存取的模組 (bento_user → 應只看到 1 menu)
 ### ────────────────────────────────────────
-@zanderToken = {{loginZander.response.body.accessToken}}
+@zanderToken = {{loginZander.response.body.access_token}}
 
 GET {{baseUrl}}/api/registry/modules
 Authorization: Bearer {{zanderToken}}
@@ -47,3 +48,53 @@ Authorization: Bearer {{zanderToken}}
 ### 5. 未帶 Token (應回 401)
 ### ────────────────────────────────────────
 GET {{baseUrl}}/api/registry/modules
+
+### ────────────────────────────────────────
+### 6. 取得 Admin 偏好設定（無記錄時自動建立預設值）
+### consumer-api 使用 SnakeCaseLower，回應欄位為 enabled_widgets / layout_data
+### ────────────────────────────────────────
+GET {{baseUrl}}/api/preferences
+Authorization: Bearer {{adminToken}}
+
+### ────────────────────────────────────────
+### 7. 取得 Zander 偏好設定
+### ────────────────────────────────────────
+GET {{baseUrl}}/api/preferences
+Authorization: Bearer {{zanderToken}}
+
+### ────────────────────────────────────────
+### 8. 儲存 Admin 偏好設定（正確版本 → 應成功，回傳 version+1）
+### version 欄位須與資料庫當前值一致，否則回 409 Conflict
+### ────────────────────────────────────────
+PUT {{baseUrl}}/api/preferences
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "enabled_widgets": ["demo_provider::Order", "demo_provider::Display"],
+  "layout_data": [
+    { "i": "remote_service/Order",   "x": 0, "y": 0, "w": 4, "h": 4, "min_w": 2, "min_h": 2, "max_w": 12, "max_h": 8 },
+    { "i": "remote_service/Display", "x": 4, "y": 0, "w": 4, "h": 4, "min_w": 2, "min_h": 2, "max_w": 12, "max_h": 8 }
+  ],
+  "version": 0
+}
+
+### ────────────────────────────────────────
+### 9. 儲存 Admin 偏好設定（舊版本 → 應回 409 Conflict，樂觀鎖測試）
+### ────────────────────────────────────────
+PUT {{baseUrl}}/api/preferences
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "enabled_widgets": ["demo_provider::Order"],
+  "layout_data": [
+    { "i": "remote_service/Order", "x": 0, "y": 0, "w": 4, "h": 4, "min_w": 2, "min_h": 2, "max_w": 12, "max_h": 8 }
+  ],
+  "version": 0
+}
+
+### ────────────────────────────────────────
+### 10. 未帶 Token 存取偏好設定 (應回 401)
+### ────────────────────────────────────────
+GET {{baseUrl}}/api/preferences
