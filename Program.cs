@@ -15,10 +15,12 @@ builder.Services.AddSingleton<DbConnectionFactory>();
 // ── Repositories ──
 builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
 builder.Services.AddScoped<IPreferenceRepository, PreferenceRepository>();
+builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 
 // ── Services ──
 builder.Services.AddScoped<IRegistryService, RegistryService>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
+builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 
 // ── JWT Bearer Authentication ──
 // 啟動時從 rbac-api 取得 RSA 公鑰 (JWK)，用於離線驗證 JWT
