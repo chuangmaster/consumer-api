@@ -48,7 +48,11 @@ public class PreferenceService : IPreferenceService
         // 產生預設 enabledWidgets key: "demo_provider::ExposedComponentName"
         // ExposedComponent 格式為 "./Order"，取去掉 "./" 後的部分
         var enabledWidgets = accessibleWidgets
-            .Select(w => $"demo_provider::{StripPrefix(w.ExposedComponent)}")
+            .Select(w => new WidgetEntryDto
+            {
+                Id = $"demo_provider::{StripPrefix(w.ExposedComponent)}",
+                SectionId = "demo_provider"
+            })
             .ToArray();
 
         // 按 12 欄 grid 排列預設佈局
@@ -71,12 +75,14 @@ public class PreferenceService : IPreferenceService
         {
             // 首次儲存 → 直接建立（忽略前端傳來的 version，初始版本即為 0）
             var created = await _preferenceRepo.CreateAsync(
-                userId, request.EnabledWidgets, request.LayoutData);
+                userId, request.EnabledWidgets, request.LayoutData,
+                request.Sections, request.SectionOrder);
             return MapToResponse(created);
         }
 
         var updated = await _preferenceRepo.UpdateAsync(
-            userId, request.EnabledWidgets, request.LayoutData, request.Version);
+            userId, request.EnabledWidgets, request.LayoutData, request.Version,
+            request.Sections, request.SectionOrder);
 
         if (!updated)
             throw new OptimisticLockException();
@@ -90,12 +96,16 @@ public class PreferenceService : IPreferenceService
 
     private static UserPreferenceResponse MapToResponse(Models.Entities.MfUserPreference entity)
     {
-        var widgets = JsonSerializer.Deserialize<string[]>(entity.EnabledWidgets, JsonOptions) ?? [];
+        var widgets = JsonSerializer.Deserialize<WidgetEntryDto[]>(entity.EnabledWidgets, JsonOptions) ?? [];
         var layout = JsonSerializer.Deserialize<LayoutItemDto[]>(entity.LayoutData, JsonOptions) ?? [];
+        var sections = JsonSerializer.Deserialize<SectionDto[]>(entity.Sections, JsonOptions) ?? [];
+        var sectionOrder = JsonSerializer.Deserialize<string[]>(entity.SectionOrder, JsonOptions) ?? [];
         return new UserPreferenceResponse
         {
             EnabledWidgets = widgets,
             LayoutData = layout,
+            Sections = sections,
+            SectionOrder = sectionOrder,
             Version = entity.Version
         };
     }
