@@ -7,16 +7,20 @@
 INSERT INTO mf_remote_modules (module_name, required_claim, entry_url, exposed_component, display_name, component_type, route_path, environment, sort_order)
 VALUES
     -- Widget: 訂購系統
-    ('remote_service', 'transport:portal:access', 'http://localhost:3001/mf-manifest.json',
+    ('remote_service', 'bento:order:create', 'http://localhost:3001/mf-manifest.json',
      './Order', '訂購系統', 'widget', NULL, 'Development', 1),
 
-    -- Widget: 統計報表 (需 admin 權限)
-    ('remote_service', 'transport:portal:admin', 'http://localhost:3001/mf-manifest.json',
-     './Display', '統計報表', 'widget', NULL, 'Development', 2),
+    -- Widget: 統計報表 (需訂餐統計瀏覽權限)
+    ('remote_service', 'bento:order:read', 'http://localhost:3001/mf-manifest.json',
+     './Display', '今日便當統計', 'widget', NULL, 'Development', 2),
 
     -- Menu: 每週菜單 (獨立路由頁面)
-    ('remote_service', 'bento:portal:access', 'http://localhost:3001/mf-manifest.json',
-     './WeeklyMenu', '每週菜單', 'menu', '/weekly-menu', 'Development', 3)
+    ('remote_service', 'bento:menu:read', 'http://localhost:3001/mf-manifest.json',
+     './WeeklyMenu', '每週菜單', 'menu', '/weekly-menu', 'Development', 3),
+
+    -- Menu: 菜單設定 (管理員獨立路由頁面)
+    ('remote_service', 'bento:menu:write', 'http://localhost:3001/mf-manifest.json',
+     './MenuConfig', '菜單設定', 'menu', '/menu-config', 'Development', 4)
 ON CONFLICT DO NOTHING;
 
 -- 2. Widget 響應式佈局配置
