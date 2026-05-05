@@ -25,9 +25,10 @@ public class RegistryService : IRegistryService
 
         var response = new ModuleRegistryResponse();
 
-        // 分離 widget 與 menu
+        // 分離 widget、menu 與 overlay
         var widgets = accessible.Where(m => m.ComponentType == "widget").ToList();
         var menus = accessible.Where(m => m.ComponentType == "menu").ToList();
+        var overlays = accessible.Where(m => m.ComponentType == "overlay").ToList();
 
         // 為 widget 載入響應式佈局配置
         if (widgets.Count > 0)
@@ -63,6 +64,14 @@ public class RegistryService : IRegistryService
             ExposedComponent = m.ExposedComponent,
             DisplayName = m.DisplayName,
             RoutePath = m.RoutePath ?? string.Empty
+        }).ToList();
+
+        response.Overlays = overlays.Select(m => new OverlayModuleResponse
+        {
+            ModuleName = m.ModuleName,
+            EntryUrl = m.EntryUrl,
+            ExposedComponent = m.ExposedComponent,
+            DisplayName = m.DisplayName
         }).ToList();
 
         return response;

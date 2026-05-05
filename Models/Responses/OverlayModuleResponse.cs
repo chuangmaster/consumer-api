@@ -1,0 +1,12 @@
+namespace ConsumerApi.Models.Responses;
+
+public class OverlayModuleResponse
+{
+    public string ModuleName { get; set; } = string.Empty;
+
+    public string EntryUrl { get; set; } = string.Empty;
+
+    public string ExposedComponent { get; set; } = string.Empty;
+
+    public string DisplayName { get; set; } = string.Empty;
+}

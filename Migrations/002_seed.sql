@@ -1,6 +1,7 @@
 -- ============================================
 -- MIB 模組註冊表 - Seed Data
 -- 對應 demo-provider 的 exposes 設定
+-- 冪等：重複執行前請先 TRUNCATE 或使用唯一鍵衝突處理
 -- ============================================
 
 -- 1. 模組註冊
@@ -20,7 +21,11 @@ VALUES
 
     -- Menu: 菜單設定 (管理員獨立路由頁面)
     ('remote_service', 'bento:menu:write', 'http://localhost:3001/mf-manifest.json',
-     './MenuConfig', '菜單設定', 'menu', '/menu-config', 'Development', 4)
+     './MenuConfig', '菜單設定', 'menu', '/menu-config', 'Development', 4),
+
+    -- Overlay: Chatbot 浮動對話窗 (右下角固定顯示)
+    ('chatbot', 'portal:access', 'http://localhost:5173/mf-manifest.json',
+     './ChatWidget', 'ChatBot', 'overlay', NULL, 'Development', 99)
 ON CONFLICT DO NOTHING;
 
 -- 2. Widget 響應式佈局配置

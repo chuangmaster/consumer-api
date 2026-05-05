@@ -18,10 +18,10 @@ CREATE TABLE IF NOT EXISTS mf_remote_modules (
     created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT chk_component_type CHECK (component_type IN ('widget', 'menu')),
+    CONSTRAINT chk_component_type CHECK (component_type IN ('widget', 'menu', 'overlay')),
     CONSTRAINT chk_menu_route CHECK (
         (component_type = 'menu' AND route_path IS NOT NULL)
-        OR component_type = 'widget'
+        OR component_type IN ('widget', 'overlay')
     )
 );
 
